@@ -5,7 +5,7 @@ _,img = cv2.threshold(img,220,255,cv2.THRESH_BINARY)
 
 cell_size = 20
 
-total_cell = img.shape[0]/(cell_size)
+total_cell = int(img.shape[0]/(cell_size))
 
 src = (0,0)
 dest = (total_cell-1,total_cell-1)
@@ -20,7 +20,6 @@ def upward(x,y,d_up):
     c = l[1][0]
     d = l[1][1]
     e =img[a:b,c:d][1][total_cell]
-    print (e)
     if e == 0:
         return False
     else:
@@ -33,7 +32,6 @@ def downward(x,y,d_down):
     c = l[1][0]
     d = l[1][1]
     e =img[a:b,c:d][1][total_cell]
-    print (e)
     if e == 0:
         return False
     else:
@@ -47,7 +45,6 @@ def leftward(x,y,d_left):
     c = l[1][0]
     d = l[1][1]
     e =img[a:b,c:d][total_cell][1]
-    print (e)
     if e == 0:
         return False
     else:
@@ -61,7 +58,6 @@ def rightward(x,y,d_right):
     c = l[1][0]
     d = l[1][1]
     e =img[a:b,c:d][total_cell][1]
-    print (e)
     if e == 0:
         return False
     else:
@@ -86,7 +82,8 @@ def BFS(adj_list,src,dest):
                 q.append(neighbour)
                 visited[neighbour[0]][neighbour[1]] = True
                 parent[neighbour[0]][neighbour[1]] = node
-    arr = []            
+    global arr 
+    arr = []
     temp = dest
     while temp!=src:
         #print(temp,"<----",end=' ')
@@ -95,10 +92,21 @@ def BFS(adj_list,src,dest):
     
     arr.reverse()
     arr.append(dest)
+    
+    print("The Following are the co-ordinates of the Maze")
+    
     for i in arr:
         print(i,end="")
         
-        
+def SHOW():
+    for i in arr:
+        x = i[0]
+        y = i[1]
+        img[x*20:(x+1)*20,y*20:(y+1)*20] = 0
+
+    cv2.imshow("Maze" , img)
+    cv2.waitKey(5000)
+    cv2.destroyAllWindows()
 #=================================================================#        
 
 d_up = dict()
@@ -106,21 +114,21 @@ d_down = dict()
 d_left = dict()
 d_right = dict()
 
-##*right obstacle*
+##right obstacle
 for i in range(total_cell):
     for j in range(total_cell):
         d_right[(i,j)] = [(i*cell_size,(i+1)*cell_size),(j*cell_size+18,(j+1)*cell_size)]
-##*down obstacle*    
+##down obstacle    
 for i in range(total_cell):
     for j in range(total_cell):
         d_down[(i,j)] = [(i*cell_size+18,(i+1)*cell_size),((j*cell_size),(j+1)*cell_size)]
 
-##*left obstacle*
+##left obstacle
 for i in range(total_cell):
     for j in range(total_cell):
         d_left[(i,j)] = [(i*cell_size,(i+1)*cell_size),(j*cell_size,(j+1)*cell_size - 18)]
         
-#*up obstacle*
+#up obstacle
 for i in range(total_cell):
     for j in range(total_cell):
         d_up[(i,j)] = [(i*cell_size,(i+1)*cell_size -1),(j*cell_size,(j+1)*cell_size)]
@@ -148,3 +156,5 @@ for i in range(total_cell):
             adj_list[(i,j)].append((i+r[3],j+c[3]))  
             
 BFS(adj_list,src,dest)
+
+SHOW()
